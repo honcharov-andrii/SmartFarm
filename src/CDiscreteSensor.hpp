@@ -79,14 +79,15 @@ struct SDiscreteSensorParams : public ISensorParams
 class CDiscreteSensor : public ISensor
 {
 public:
-	CDiscreteSensor(ISensorParams & buttonParams) : ISensor()
+	CDiscreteSensor(ISensorParams & discreteSensorParams) : ISensor()
 	, mParams()
   , mLastSensorData()
 	, mIsInit(false)
+  , mLastInterruptTime(0)
 	{
-	  if(true == buttonParams.getType().equals("SButtonParams"))
+	  if(true == discreteSensorParams.getType().equals("SDiscreteSensorParams"))
 	  {    
-	    mParams = (const SDiscreteSensorParams&)(buttonParams);
+	    mParams = (const SDiscreteSensorParams&)(discreteSensorParams);
 
 	    pinMode(mParams.mDiscreteSensorPin, INPUT);
 
@@ -95,7 +96,7 @@ public:
 
       if(true == mParams.mIsUseInterrupts)
       {        
-        attachInterrupt(digitalPinToInterrupt(mParams.mDiscreteSensorPin), mParams.mFunc, mParams.mInterruptType);
+        attachInterrupt(digitalPinToInterrupt(mParams.mDiscreteSensorPin), std::bind(&CDiscreteSensor::interruptHandler, this), mParams.mInterruptType);//
       }
 
 	    mIsInit = true;
@@ -109,6 +110,8 @@ public:
         detachInterrupt(digitalPinToInterrupt(mParams.mDiscreteSensorPin));
       }
 	}
+
+  friend void attachInterrupt(uint8_t pin, std::function<void(void)> intRoutine, int mode);
 
 	virtual bool isInit()
 	{
@@ -127,7 +130,23 @@ public:
 
 private:
 
+ICACHE_RAM_ATTR void interruptHandler()
+{
+  if(nullptr != mParams.mFunc)
+  { 
+    if(millis() - mLastInterruptTime > mNoInterruptsDelay) // we set a 20ms no-interrupts window
+    {
+      mParams.mFunc();
+
+      mLastInterruptTime = millis();
+    }
+  }
+}
+
 SDiscreteSensorParams mParams;
 SDiscreteSensorData mLastSensorData;
 bool mIsInit;
+
+unsigned long mLastInterruptTime;
+const unsigned long mNoInterruptsDelay = 20;
 };
