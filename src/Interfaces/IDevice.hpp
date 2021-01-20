@@ -18,5 +18,5 @@ public:
 
 	virtual void stopDevice() = 0;
 
-	virtual bool isDeviceStarting() = 0;	
+	virtual bool isDeviceStarted() const = 0;
 };

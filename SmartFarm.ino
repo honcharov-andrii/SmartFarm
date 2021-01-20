@@ -136,13 +136,13 @@ void loop() {
   {
     delay(3000);
 
-    const STemperatureSensorData & dataT = (const STemperatureSensorData &)OneWireTemp->getData();
+    auto dataT = static_cast<const STemperatureSensorData &>(OneWireTemp->getData());
 
     Serial.print("Temperature: ");
     Serial.print(dataT.mTemperature);
     Serial.println("°C");
 
-    const SDiscreteSensorData & dataB = (const SDiscreteSensorData &)BarrierSensor->getData();
+    auto dataB = static_cast<const SDiscreteSensorData &>(BarrierSensor->getData());
 
     Serial.print("Barrier: ");
     Serial.println(!static_cast<bool>(dataB.mDiscreteSensorState));

@@ -70,7 +70,7 @@ virtual void stopDevice()
   }
 }
 
-virtual bool isDeviceStarting()
+virtual bool isDeviceStarted() const
 {
   return mIsDeviceStarting;
 }

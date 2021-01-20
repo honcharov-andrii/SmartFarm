@@ -5,8 +5,6 @@
 struct ISensorParams
 {
   virtual ~ISensorParams() {};
-
-  virtual String getType() const = 0;
 };
 
 struct ISensorData
@@ -22,7 +20,7 @@ public:
 	
 	virtual ~ISensor() {};
 
-	virtual bool isInit() = 0;
+	virtual bool isInit() const = 0;
 
 	virtual const ISensorData & getData() = 0;	
 };

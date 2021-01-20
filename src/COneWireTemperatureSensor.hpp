@@ -41,11 +41,6 @@ struct SOneWireTemperatureSensorParams : public ISensorParams
     return *this;
   }
 
-  virtual String getType() const
-  {
-  	return "SOneWireTemperatureSensorParams";
-  }
-
   DeviceAddress mDeviceAddress;
   DallasTemperature mSensors;
 };
@@ -53,22 +48,16 @@ struct SOneWireTemperatureSensorParams : public ISensorParams
 class COneWireTemperatureSensor : public ISensor
 {
 public:
-	COneWireTemperatureSensor(ISensorParams & sensorParams) : ISensor()
-	, mParams()
+	COneWireTemperatureSensor(SOneWireTemperatureSensorParams & sensorParams) : ISensor()
+	, mParams(sensorParams)
   , mLastTempSensorData()
-	, mIsInit(false)
-	{
-	  if(true == sensorParams.getType().equals("SOneWireTemperatureSensorParams"))
-	  {
-	    mParams = (const SOneWireTemperatureSensorParams&)(sensorParams);
-	    mIsInit = true;
-	  }
-	}
+	, mIsInit(true)
+	{}
 
 	~COneWireTemperatureSensor()
 	{}
 
-	virtual bool isInit()
+	virtual bool isInit() const
 	{
 		return mIsInit;
 	}

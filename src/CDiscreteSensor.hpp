@@ -65,42 +65,30 @@ struct SDiscreteSensorParams : public ISensorParams
     return *this;
   }
 
-  virtual String getType() const
-  {
-  	return "SDiscreteSensorParams";
-  }
-
   uint8_t mDiscreteSensorPin;
   bool mIsUseInterrupts;
   int mInterruptType;
-  void (*mFunc)(void);
+  std::function<void(void)> mFunc;
 };
 
 class CDiscreteSensor : public ISensor
 {
 public:
-	CDiscreteSensor(ISensorParams & discreteSensorParams) : ISensor()
-	, mParams()
+	CDiscreteSensor(SDiscreteSensorParams & discreteSensorParams) : ISensor()
+	, mParams(discreteSensorParams)
   , mLastSensorData()
-	, mIsInit(false)
+	, mIsInit(true)
   , mLastInterruptTime(0)
 	{
-	  if(true == discreteSensorParams.getType().equals("SDiscreteSensorParams"))
-	  {    
-	    mParams = (const SDiscreteSensorParams&)(discreteSensorParams);
+    pinMode(mParams.mDiscreteSensorPin, INPUT);
 
-	    pinMode(mParams.mDiscreteSensorPin, INPUT);
+    Serial.print(mParams.mDiscreteSensorPin);
+    Serial.print(mParams.mIsUseInterrupts);
 
-      Serial.print(mParams.mDiscreteSensorPin);
-      Serial.print(mParams.mIsUseInterrupts);
-
-      if(true == mParams.mIsUseInterrupts)
-      {        
-        attachInterrupt(digitalPinToInterrupt(mParams.mDiscreteSensorPin), std::bind(&CDiscreteSensor::interruptHandler, this), mParams.mInterruptType);//
-      }
-
-	    mIsInit = true;
-	  }
+    if(true == mParams.mIsUseInterrupts)
+    {        
+      attachInterrupt(digitalPinToInterrupt(mParams.mDiscreteSensorPin), std::bind(&CDiscreteSensor::interruptHandler, this), mParams.mInterruptType);//
+    }
 	}
 
 	~CDiscreteSensor()
@@ -113,7 +101,7 @@ public:
 
   friend void attachInterrupt(uint8_t pin, std::function<void(void)> intRoutine, int mode);
 
-	virtual bool isInit()
+	virtual bool isInit() const
 	{
 		return mIsInit;
 	}
@@ -132,6 +120,8 @@ private:
 
 ICACHE_RAM_ATTR void interruptHandler()
 {
+  const unsigned long mNoInterruptsDelay = 20;
+
   if(nullptr != mParams.mFunc)
   { 
     if(millis() - mLastInterruptTime > mNoInterruptsDelay) // we set a 20ms no-interrupts window
@@ -148,5 +138,4 @@ SDiscreteSensorData mLastSensorData;
 bool mIsInit;
 
 unsigned long mLastInterruptTime;
-const unsigned long mNoInterruptsDelay = 20;
 };

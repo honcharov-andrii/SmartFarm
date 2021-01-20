@@ -45,15 +45,15 @@ public:
 	{
 		this->detach();
    
-	  if(true == mDevice.isDeviceStarting())
+	  if(true == mDevice.isDeviceStarted())
 	  {
 	    mDevice.stopDevice();
 	  }
 	}
 
-  bool isDeviceWorking()
+  bool isDeviceWorking() const
   {
-    return mDevice.isDeviceStarting();
+    return mDevice.isDeviceStarted();
   }
 
 private:
@@ -65,7 +65,7 @@ private:
 
   void tickerHandlerStartWorkingCyclic()
   {
-    if(true == mDevice.isDeviceStarting())
+    if(true == mDevice.isDeviceStarted())
     {
       mDevice.stopDevice();
 

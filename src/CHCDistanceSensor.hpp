@@ -30,11 +30,6 @@ struct SHCDistanceSensorParams : public ISensorParams
     return *this;
   }
 
-  virtual String getType() const
-  {
-  	return "SHCDistanceSensorParams";
-  }
-
   uint8_t mEchoPin;
   uint8_t mTrigPin; 
 };
@@ -42,23 +37,24 @@ struct SHCDistanceSensorParams : public ISensorParams
 class CHCDistanceSensor : public ISensor
 {
 public:
-	CHCDistanceSensor(ISensorParams & sensorParams) : ISensor()
-	, mParams()
-    , mSonar(nullptr)
-	, mIsInit(false)
+	CHCDistanceSensor(SHCDistanceSensorParams & sensorParams) : ISensor()
+	, mParams(sensorParams)
+  , mSonar(nullptr)
+	, mIsInit(true)
 	{
-	  if(true == sensorParams.getType().equals("SHCDistanceSensorParams"))
-	  {
-	    mParams = (const SHCDistanceSensorParams&)(sensorParams);
-        mSonar = new Ultrasonic(mParams.mTrigPin, mParams.mEchoPin);
-	    mIsInit = true;
-	  }
+    mParams = (const SHCDistanceSensorParams&)(sensorParams);
+    mSonar = new Ultrasonic(mParams.mTrigPin, mParams.mEchoPin);
 	}
 
 	~CHCDistanceSensor()
-	{}
+	{
+    if(nullptr != mSonar)
+    {
+      delete mSonar;
+    }
+  }
 
-	virtual bool isInit()
+	virtual bool isInit() const
 	{
 		return mIsInit;
 	}
